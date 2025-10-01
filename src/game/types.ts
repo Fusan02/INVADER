@@ -8,3 +8,9 @@ export interface Size {
     height: number;
 }
 
+export enum GameState {
+    PLAYING = 'PLAYING',
+    GAME_OVER = 'GAME_OVER',
+    GAME_CLEAR = 'GAME_CLEAR',
+}
+

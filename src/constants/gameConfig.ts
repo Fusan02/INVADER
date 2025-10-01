@@ -19,6 +19,10 @@ export const GAME_CONFIG = {
         speed: 1,       // 移動速度
         step: 1,        // フレームあたり下がる距離
         totalDownDistance: 20,
+
+        easy: 60,
+        normal: 30,
+        hard: 10,
     },
     bullet: {
         width: 3,
