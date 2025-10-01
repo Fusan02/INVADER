@@ -5,6 +5,7 @@ import styles from './game.css';
 import { Player } from '@/game/Player';
 import { Enemy } from '@/game/Enemy';
 import { GAME_CONFIG } from '@/constants/gameConfig';
+import { Bullet } from '@/game/Bullet';
 
 export default function Game() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -18,6 +19,12 @@ export default function Game() {
 
         // プレイヤーを作成
         const player = new Player(380, 550);
+
+        // ... 弾の配列を作成 ...
+        const bullets: Bullet[] = [];
+        
+        // スペース長押しで弾発射できるかできないか。
+        const isCheating = false;
 
         // ... 敵の配列を作成 ...
         // Enemy型のからの配列を作成
@@ -43,6 +50,12 @@ export default function Game() {
 
         const handleKeyDown = (e: KeyboardEvent) => {
             keys[e.key] = true;
+
+            if (!isCheating) {
+                if (e.key === ' ') {
+                    bullets.push(player.shoot());
+                }
+            }
         };
 
         const handleKeyUp = (e: KeyboardEvent) => {
@@ -56,18 +69,41 @@ export default function Game() {
 
         // ...gameLoop ...
         const gameLoop = () => {
+            // ... ループ時のレンダリング ...
             // 画面をクリア (黒で塗りつぶし→前の描画を消す)
             ctx.fillStyle = 'black';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // キー入力に応じて移動
+            // ... プレイヤー ...
+            // キー入力に応じてプレイヤー移動
             if (keys['ArrowLeft']) {
                 player.moveLeft();
             } 
             if (keys['ArrowRight']) {
                 player.moveRight(canvas.width);
             }
+
+            // ... 弾 ...
+            // スペースキーで弾発射
+            if (isCheating) {
+                if (keys[' ']) {
+                    bullets.push(player.shoot());
+                }
+            }
             
+            // 弾の更新
+            bullets.forEach(bullet => {
+                if (bullet.isActive) {
+                    bullet.update();
+                }
+            });
+
+            // 無効な弾を削除
+            const activeBullets = bullets.filter(b => b.isActive);
+            bullets.length = 0;
+            bullets.push(...activeBullets);
+            
+            // ... 敵 ...
             // 下移動中の処理
             if (isMovingDown) {
                 const step = GAME_CONFIG.enemy.step;                
@@ -106,11 +142,15 @@ export default function Game() {
                 }
             }
 
+            // ... 描画 ...
             // 敵を描画
             enemies.forEach(enemy => {
                 enemy.draw(ctx);
             });
-
+            // 弾を描画
+            bullets.forEach(bullet => {
+                bullet.draw(ctx);
+            });
             // プレイヤーを描画
             player.draw(ctx);
 

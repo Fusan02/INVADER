@@ -1,4 +1,6 @@
+import { GAME_CONFIG } from '@/constants/gameConfig';
 import { Position, Size } from './types';
+import { Bullet } from './Bullet';
 
 // プレイヤークラスの定義
 export class Player {
@@ -8,8 +10,11 @@ export class Player {
 
     constructor(x: number, y: number) {
         this.position = { x, y };
-        this.size = { width: 40, height: 30 };
-        this.speed = 5;
+        this.size = {
+            width: GAME_CONFIG.player.width,
+            height: GAME_CONFIG.player.height 
+        };
+        this.speed = GAME_CONFIG.player.speed;
     }
 
     // 描画
@@ -33,5 +38,13 @@ export class Player {
         if (this.position.x + this.size.width < canvasWidth) {
             this.position.x += this.speed;
         }
+    }
+
+    // 弾を発射
+    shoot(): Bullet {
+        const bulletX = this.position.x + this.size.width / 2 - GAME_CONFIG.bullet.width / 2;
+        const bulletY = this.position.y;
+
+        return new Bullet(bulletX, bulletY, GAME_CONFIG.bullet.speed);
     }
 }
