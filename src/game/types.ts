@@ -9,6 +9,7 @@ export interface Size {
 }
 
 export enum GameState {
+    START = 'START',
     PLAYING = 'PLAYING',
     GAME_OVER = 'GAME_OVER',
     GAME_CLEAR = 'GAME_CLEAR',

@@ -8,14 +8,33 @@ import { GAME_CONFIG } from '@/constants/gameConfig';
 import { Bullet } from '@/game/Bullet';
 import { checkCollision } from '@/game/collision';
 import { GameState } from '@/game/types';
+import StartScreen from './StartScreen';
 
 export default function Game() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [gameState, setGameState] = useState<GameState>(GameState.PLAYING);
-    const [score, setScore] = useState(0);
-    const [lives, setLives] = useState(3);
+    const [gameState, setGameState] = useState<GameState>(GameState.START);
+    const gameStateRef = useRef(gameState);
+    const [, setScore] = useState(0);
+    const [, setLives] = useState(3);
+    const [gameStartKey, setGameStartKey] = useState(0);
+    const [difficulty, setDifficulty] = useState(1);  // 難易度を保持
+
+    const handleStart = (selectedDifficulty: number) => {
+        setGameState(GameState.PLAYING);
+        setScore(0);
+        setLives(3);
+        setDifficulty(selectedDifficulty);
+        setGameStartKey(prev => prev + 1);
+    };
 
     useEffect(() => {
+        gameStateRef.current = gameState;
+    }, [gameState]);
+
+    useEffect(() => {
+        // スタート画面の時はゲームループは開始しない
+        if (gameStateRef.current === GameState.START) return;
+
         const canvas = canvasRef.current;
         if (!canvas) return;
 
@@ -71,7 +90,7 @@ export default function Game() {
 
                 // リスタート (Rキー)
                 if (e.key === 'r' && currentGameState !== GameState.PLAYING) {
-                    window.location.reload();
+                    setGameState(GameState.START);  // スタート画面に戻る
                 }
             }
         };
@@ -137,7 +156,7 @@ export default function Game() {
 
                 // リスタート (Rキー)
                 if (keys['r'] && currentGameState !== GameState.PLAYING) {
-                    window.location.reload();
+                    setGameState(GameState.START);
                 }
             }
             
@@ -205,7 +224,7 @@ export default function Game() {
 
             // 敵がランダムに弾を発射
             enemyShootTimer++;
-            if (enemyShootTimer > level[2]) { // 60フレームごとに撃つ
+            if (enemyShootTimer > level[difficulty]) { // 難易度に応じて撃つ頻度変更
                 enemyShootTimer = 0;
 
                 const aliveEnemies = enemies.filter(e => e.isAlive);
@@ -295,14 +314,20 @@ export default function Game() {
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
         };
-    }, []);
+    }, [gameStartKey, difficulty]);
 
     return (
-        <canvas 
-            ref={canvasRef}
-            width={800}
-            height={600}
-            className={styles.canvas}
-        />
+        <div>
+            {gameState === GameState.START ? (
+                <StartScreen onStart={handleStart} />
+            ) : (
+                <canvas 
+                    ref={canvasRef}
+                    width={800}
+                    height={600}
+                    className={styles.canvas}
+                />
+            )}
+        </div>
     );
 }

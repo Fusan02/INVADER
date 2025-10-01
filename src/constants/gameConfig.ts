@@ -22,7 +22,7 @@ export const GAME_CONFIG = {
 
         easy: 60,
         normal: 30,
-        hard: 10,
+        hard: 5,
     },
     bullet: {
         width: 3,
