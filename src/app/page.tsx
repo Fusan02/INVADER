@@ -1,8 +1,10 @@
+import Game from '@/components/Game';
+import styles from './home.css';
+
 export default function Home() {
   return (
-    <div>
-      INVADER
-      <div className='aaa'></div>
+    <div className={styles.page}>
+      <Game />
     </div>
   );
 }
