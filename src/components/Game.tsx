@@ -103,9 +103,22 @@ export default function Game() {
         window.addEventListener('keyup', handleKeyUp);
 
         let animationFrameId: number;
+        let lastTime = 0;
+        const targetFPS = 60;
+        const frameInterval = 1000 / targetFPS;  // 16.666ms
 
         // ...gameLoop ...
-        const gameLoop = () => {
+        const gameLoop = (currentTime: number = 0) => {
+            // FPS制限
+            const deltaTime = currentTime - lastTime;
+
+            if (deltaTime < frameInterval) {
+                animationFrameId = requestAnimationFrame(gameLoop);
+                return;
+            }
+
+            lastTime = currentTime - (deltaTime % frameInterval);
+
             // ... ループ時のレンダリング ...
             // 画面をクリア (黒で塗りつぶし→前の描画を消す)
             ctx.fillStyle = 'black';
